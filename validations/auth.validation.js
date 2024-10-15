@@ -16,5 +16,6 @@ exports.authRegister = () => {
             .normalizeEmail(),
         body("password").trim().isLength({ min: 5 }),
         body("name").trim().not().isEmpty(),
+        body("username").trim().not().isEmpty(),
     ];
 };
