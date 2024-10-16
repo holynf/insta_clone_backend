@@ -12,6 +12,7 @@ router.post("/create", validation.createPostValidation(), controller.createPost)
 router.put("/like", controller.likePost);
 router.put("/unlike", controller.unlikePost);
 router.put("/comment", controller.commentPost);
+router.put("/delete-comment", controller.deleteCommentPost);
 
 router.delete("/:postId", controller.deletePost);
 

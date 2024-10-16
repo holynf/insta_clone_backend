@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator");
 const Post = require("../models/post.model");
+const { Types } = require("mongoose");
 
 exports.postsList = (req, res, next) => {
     console.log(req.user);
@@ -215,6 +216,49 @@ exports.commentPost = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
+
+        res.json({
+            _id: updatedPost._id,
+            title: updatedPost.title,
+            body: updatedPost.body,
+            posted_by: updatedPost.posted_by,
+            photo: updatedPost.photo?.toString("base64"),
+            likes: updatedPost.likes,
+            comments: updatedPost.comments,
+        });
+    } catch (err) {
+        err.statusCode = err.statusCode || 500;
+        next(err);
+    }
+};
+
+exports.deleteCommentPost = async (req, res, next) => {
+    try {
+        const { postId, commentId } = req.body;
+
+        const post = await Post.findById(postId)
+            .populate("comments.posted_by", "_id name email")
+            .populate("posted_by", "_id name email");
+
+        if (!post) {
+            const error = new Error("Post not found!");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        const commentIndex = post?.comments.findIndex(
+            (comment) => comment._id.toString() === commentId,
+        );
+
+        if (commentIndex === -1) {
+            const error = new Error("Comment not found!");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        post.comments.splice(commentIndex, 1);
+
+        const updatedPost = await post.save();
 
         res.json({
             _id: updatedPost._id,
