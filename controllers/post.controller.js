@@ -1,5 +1,5 @@
 const { validationResult } = require("express-validator");
-const Post = require("../models/post.model");
+const Post = require("../models/post");
 const { Types } = require("mongoose");
 
 exports.postsList = (req, res, next) => {

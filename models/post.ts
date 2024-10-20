@@ -1,4 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose, { model } from "mongoose";
+import { Post as PostModel } from "../interfaces/models/post";
+
 const { ObjectId } = mongoose.Schema.Types;
 
 const postSchema = new mongoose.Schema(
@@ -12,7 +14,7 @@ const postSchema = new mongoose.Schema(
             required: true,
         },
         photo: {
-            type: Buffer,
+            type: String,
             default: "no photo",
         },
         posted_by: { type: ObjectId, ref: "User" },
@@ -30,5 +32,5 @@ const postSchema = new mongoose.Schema(
     { timestamps: true },
 );
 
-// Create a model from our schema
-module.exports = mongoose.model("Post", postSchema);
+const Post = model<PostModel>("Post", postSchema);
+export default Post;

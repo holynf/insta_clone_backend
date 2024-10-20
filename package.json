@@ -11,6 +11,7 @@
   "author": "abolfazl safaei",
   "license": "ISC",
   "dependencies": {
+    "@types/express": "^5.0.0",
     "auto-bind": "^4.0.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
@@ -26,7 +27,9 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
+    "nodemon": "^2.0.12",
     "prettier": "3.2.5",
-    "nodemon": "^2.0.12"
+    "typescript": "5.0.3",
+    "typescript-eslint-parser": "^18.0.0"
   }
 }

@@ -1,13 +1,16 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { validationResult } = require("express-validator");
+import User from "../models/user";
+import { validationResult } from "express-validator";
 
-const User = require("../models/user.model");
+import { CustomErrorType } from "../interfaces/appInterface";
+import { User as UserModel } from "../interfaces/models/user";
+import { NextFunction, Request, Response } from "express";
+import bcrypt = require("bcryptjs");
+import jwt = require("jsonwebtoken");
 
-exports.register = (req, res, next) => {
+exports.register = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const error = new Error("Validation failed.");
+        const error: CustomErrorType = new Error("Validation failed.");
         error.statusCode = 422;
         error.data = errors.array();
         throw error;
@@ -20,7 +23,7 @@ exports.register = (req, res, next) => {
 
     bcrypt
         .hash(password, 12)
-        .then((hashedPw) => {
+        .then((hashedPw: string) => {
             const user = new User({
                 email: email,
                 password: hashedPw,
@@ -29,10 +32,10 @@ exports.register = (req, res, next) => {
             });
             return user.save();
         })
-        .then((result) => {
+        .then((result: UserModel) => {
             res.status(201).json({ message: "User created!", userId: result._id });
         })
-        .catch((err) => {
+        .catch((err: CustomErrorType) => {
             if (!err.statusCode) {
                 err.statusCode = 500;
             }
@@ -40,20 +43,22 @@ exports.register = (req, res, next) => {
         });
 };
 
-exports.login = (req, res, next) => {
+exports.login = (req: Request, res: Response, next: NextFunction) => {
     const email = req.body.email;
     const password = req.body.password;
     if (!email || !password) {
-        const error = new Error("Please provide Email or Password!");
+        const error: CustomErrorType = new Error("Please provide Email or Password!");
         error.statusCode = 404;
         throw error;
     }
 
-    let loadedUser;
+    let loadedUser: UserModel;
     User.findOne({ email: email })
         .then((user) => {
             if (!user) {
-                const error = new Error("A user with this email could not be found.");
+                const error: CustomErrorType = new Error(
+                    "A user with this email could not be found.",
+                );
                 error.statusCode = 401;
                 throw error;
             }
@@ -62,11 +67,11 @@ exports.login = (req, res, next) => {
         })
         .then((isEqual) => {
             if (!isEqual) {
-                const error = new Error("Wrong password!");
+                const error: CustomErrorType = new Error("Wrong password!");
                 error.statusCode = 401;
                 throw error;
             }
-            const token = jwt.sign(
+            const token: string = jwt.sign(
                 {
                     email: loadedUser.email,
                     userId: loadedUser._id.toString(),
