@@ -1,9 +1,8 @@
 import mongoose, { model } from "mongoose";
-import { Post as PostModel } from "../interfaces/models/post";
-
 const { ObjectId } = mongoose.Schema.Types;
+import { PostModelType } from "../interfaces/models/post";
 
-const postSchema = new mongoose.Schema(
+const postSchema = new mongoose.Schema<PostModelType>(
     {
         title: {
             type: String,
@@ -32,5 +31,5 @@ const postSchema = new mongoose.Schema(
     { timestamps: true },
 );
 
-const Post = model<PostModel>("Post", postSchema);
+const Post = model<PostModelType>("Post", postSchema);
 export default Post;

@@ -1,9 +1,9 @@
-const { validationResult } = require("express-validator");
-const Post = require("../models/post");
-const { Types } = require("mongoose");
+import { validationResult } from "express-validator";
+import Post from "../models/post";
+import { CustomErrorType } from "../interfaces/appInterface";
+import { NextFunction, Request, Response } from "express";
 
-exports.postsList = (req, res, next) => {
-    console.log(req.user);
+export const postsList = (req: Request, res: Response, next: NextFunction) => {
     Post.find()
         .populate("posted_by", "_id name email")
         .populate("comments.posted_by", "_id name email")
@@ -16,7 +16,7 @@ exports.postsList = (req, res, next) => {
                     title: item.title,
                     body: item.body,
                     posted_by: item.posted_by,
-                    photo: item.photo.toString("base64"),
+                    photo: item.photo.toString(),
                     likes: item.likes,
                     comments: item.comments,
                 });
@@ -24,11 +24,11 @@ exports.postsList = (req, res, next) => {
             res.json({ posts });
         })
         .catch((err) => {
-            console.log(err);
+            next(err);
         });
 };
 
-exports.subPost = (req, res) => {
+export const subPost = (req: Request, res: Response, next: NextFunction) => {
     Post.find({ posted_by: { $in: req.user.following } })
         .populate("posted_by", "_id name")
         .populate("comments.posted_by", "_id name")
@@ -41,7 +41,7 @@ exports.subPost = (req, res) => {
                     title: item.title,
                     body: item.body,
                     posted_by: item.posted_by,
-                    photo: item.photo.toString("base64"),
+                    photo: item.photo.toString(),
                     likes: item.likes,
                     comments: item.comments,
                 });
@@ -49,11 +49,11 @@ exports.subPost = (req, res) => {
             res.json({ posts });
         })
         .catch((err) => {
-            console.log(err);
+            next(err);
         });
 };
 
-exports.myPost = (req, res) => {
+export const myPost = (req: Request, res: Response, next: NextFunction) => {
     Post.find({ posted_by: req.user._id })
         .populate("posted_by", "_id name")
         .populate("comments.posted_by", "_id name")
@@ -65,8 +65,7 @@ exports.myPost = (req, res) => {
                     _id: item._id,
                     title: item.title,
                     body: item.body,
-                    // posted_by: item.posted_by,
-                    photo: item.photo.toString("base64"),
+                    photo: item.photo.toString(),
                     likes: item.likes,
                     comments: item.comments,
                 });
@@ -74,14 +73,14 @@ exports.myPost = (req, res) => {
             res.json({ posts });
         })
         .catch((err) => {
-            console.log(err);
+            next(err);
         });
 };
 
-exports.createPost = (req, res, next) => {
+export const createPost = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const error = new Error("Validation failed, entered data is incorrect.");
+        const error: CustomErrorType = new Error("Validation failed, entered data is incorrect.");
         error.statusCode = 422;
         throw error;
     }
@@ -109,10 +108,10 @@ exports.createPost = (req, res, next) => {
         });
 };
 
-exports.likePost = async (req, res, next) => {
+export const likePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.user || !req.user._id) {
-            const error = new Error("User ID is not provided.");
+            const error: CustomErrorType = new Error("User ID is not provided.");
             error.statusCode = 400;
             return next(error);
         }
@@ -124,7 +123,7 @@ exports.likePost = async (req, res, next) => {
         });
 
         if (existingLike) {
-            const error = new Error("You already liked this post!");
+            const error: CustomErrorType = new Error("You already liked this post!");
             error.statusCode = 422;
             throw error;
         }
@@ -139,7 +138,7 @@ exports.likePost = async (req, res, next) => {
             .populate("comments.posted_by", "_id name email");
 
         if (!updatedPost) {
-            const error = new Error("Post not found!");
+            const error: CustomErrorType = new Error("Post not found!");
             error.statusCode = 404;
             throw error;
         }
@@ -150,20 +149,19 @@ exports.likePost = async (req, res, next) => {
             title: updatedPost.title,
             body: updatedPost.body,
             posted_by: updatedPost.posted_by,
-            photo: updatedPost.photo?.toString("base64"),
+            photo: updatedPost.photo?.toString(),
             likes: updatedPost.likes,
             comments: updatedPost.comments,
         });
     } catch (error) {
-        // Pass any error to the next middleware
         next(error);
     }
 };
 
-exports.unlikePost = async (req, res, next) => {
+export const unlikePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.user || !req.user._id) {
-            const error = new Error("User ID is not provided.");
+            const error: CustomErrorType = new Error("User ID is not provided.");
             error.statusCode = 400;
             return next(error);
         }
@@ -177,7 +175,7 @@ exports.unlikePost = async (req, res, next) => {
             .populate("comments.posted_by", "_id name email");
 
         if (!updatedPost) {
-            const error = new Error("Post not found!");
+            const error: CustomErrorType = new Error("Post not found!");
             error.statusCode = 404;
             throw error;
         }
@@ -187,7 +185,7 @@ exports.unlikePost = async (req, res, next) => {
             title: updatedPost.title,
             body: updatedPost.body,
             posted_by: updatedPost.posted_by,
-            photo: updatedPost.photo?.toString("base64"),
+            photo: updatedPost.photo?.toString(),
             likes: updatedPost.likes,
             comments: updatedPost.comments,
         });
@@ -197,7 +195,7 @@ exports.unlikePost = async (req, res, next) => {
     }
 };
 
-exports.commentPost = async (req, res, next) => {
+export const commentPost = async (req: Request, res: Response, next: NextFunction) => {
     const comment = { text: req.body.text, posted_by: req.user._id };
 
     try {
@@ -212,7 +210,7 @@ exports.commentPost = async (req, res, next) => {
             .populate("posted_by", "_id name email");
 
         if (!updatedPost) {
-            const error = new Error("Post not found!");
+            const error: CustomErrorType = new Error("Post not found!");
             error.statusCode = 404;
             throw error;
         }
@@ -222,7 +220,7 @@ exports.commentPost = async (req, res, next) => {
             title: updatedPost.title,
             body: updatedPost.body,
             posted_by: updatedPost.posted_by,
-            photo: updatedPost.photo?.toString("base64"),
+            photo: updatedPost.photo?.toString(),
             likes: updatedPost.likes,
             comments: updatedPost.comments,
         });
@@ -232,7 +230,7 @@ exports.commentPost = async (req, res, next) => {
     }
 };
 
-exports.deleteCommentPost = async (req, res, next) => {
+export const deleteCommentPost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { postId, commentId } = req.body;
 
@@ -241,7 +239,7 @@ exports.deleteCommentPost = async (req, res, next) => {
             .populate("posted_by", "_id name email");
 
         if (!post) {
-            const error = new Error("Post not found!");
+            const error: CustomErrorType = new Error("Post not found!");
             error.statusCode = 404;
             throw error;
         }
@@ -251,7 +249,7 @@ exports.deleteCommentPost = async (req, res, next) => {
         );
 
         if (commentIndex === -1) {
-            const error = new Error("Comment not found!");
+            const error: CustomErrorType = new Error("Comment not found!");
             error.statusCode = 404;
             throw error;
         }
@@ -265,6 +263,7 @@ exports.deleteCommentPost = async (req, res, next) => {
             title: updatedPost.title,
             body: updatedPost.body,
             posted_by: updatedPost.posted_by,
+            // @ts-ignore
             photo: updatedPost.photo?.toString("base64"),
             likes: updatedPost.likes,
             comments: updatedPost.comments,
@@ -275,12 +274,12 @@ exports.deleteCommentPost = async (req, res, next) => {
     }
 };
 
-exports.deletePost = async (req, res, next) => {
+export const deletePost = async (req: Request, res: Response, next: NextFunction) => {
     const postId = req.params.postId;
     try {
         const deletedPost = await Post.findOne({ _id: postId }).populate("posted_by", "_id");
         if (!deletedPost) {
-            const err = new Error("post NOT found!");
+            const err: CustomErrorType = new Error("post NOT found!");
             err.statusCode = 404;
             throw err;
         }
@@ -302,3 +301,16 @@ exports.deletePost = async (req, res, next) => {
         next(err);
     }
 };
+
+const controller = {
+    postsList,
+    createPost,
+    deletePost,
+    deleteCommentPost,
+    commentPost,
+    likePost,
+    unlikePost,
+    myPost,
+    subPost,
+};
+export default controller;

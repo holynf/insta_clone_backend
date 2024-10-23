@@ -6,7 +6,7 @@ const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const apiRoutes = require("./routes/apiRoutes");
 
-const connectDB = require("./config/db.config");
+import connectDB from "./config/db.config";
 
 /**
  * -------------- GENERAL SETUP ----------------

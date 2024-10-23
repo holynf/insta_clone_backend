@@ -1,5 +1,5 @@
-const Post = require("../models/post");
-const User = require("../models/user");
+import Post from "../models/post";
+import User from "../models/user";
 
 exports.user = (req, res) => {
     User.findOne({ _id: req.params.id })
@@ -16,7 +16,7 @@ exports.user = (req, res) => {
                             title: item.title,
                             body: item.body,
                             posted_by: item.posted_by,
-                            photo: item.photo?.toString("base64"),
+                            photo: item.photo?.toString(),
                             likes: item.likes,
                             comments: item.comments,
                         });

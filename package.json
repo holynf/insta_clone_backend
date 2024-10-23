@@ -21,11 +21,14 @@
     "express": "^4.17.1",
     "express-validator": "^7.2.0",
     "helmet": "^4.6.0",
+    "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.0.5",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
     "cross-env": "^7.0.3",
     "nodemon": "^2.0.12",
     "prettier": "3.2.5",
