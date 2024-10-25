@@ -3,7 +3,6 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { z } from "zod";
 import User from "../models/user";
 import { CustomErrorType } from "../interfaces/appInterface";
-import { UserSchema } from "../interfaces/models/user";
 
 const authSchema = z.object({
     authorization: z.string().min(1, "Authorization header is required"),
@@ -32,14 +31,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
                 return next(error);
             }
 
-            const validationResult = UserSchema.safeParse(userdata);
-            if (!validationResult.success) {
-                const error: CustomErrorType = new Error("User data is invalid.");
-                (error as any).statusCode = 500;
-                return next(error);
-            }
-
-            req.user = validationResult.data;
+            req.user = userdata;
             next();
         });
     } catch (error) {

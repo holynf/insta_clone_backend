@@ -22,6 +22,7 @@ const postSchema = new mongoose.Schema<PostModelType>(
             {
                 text: String,
                 posted_by: {
+                    _id: ObjectId,
                     type: ObjectId,
                     ref: "User",
                 },

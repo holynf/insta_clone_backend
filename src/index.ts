@@ -1,12 +1,13 @@
-const express = require("express");
-const morgan = require("morgan");
-const cors = require("cors");
-const compression = require("compression");
-const helmet = require("helmet");
-const bodyParser = require("body-parser");
-const apiRoutes = require("./routes/apiRoutes");
+import express, { NextFunction, Request, Response } from "express";
+import morgan from "morgan";
+import cors from "cors";
+import compression from "compression";
+import helmet from "helmet";
+import bodyParser from "body-parser";
+import apiRoutes from "./routes/apiRoutes";
 
-import connectDB from "./config/db.config";
+import { connectDB } from "./config/db.config";
+import { CustomErrorType } from "./interfaces/appInterface";
 
 /**
  * -------------- GENERAL SETUP ----------------
@@ -46,7 +47,7 @@ app.use("/api", apiRoutes);
  * -------------- ERRORS ----------------
  */
 
-app.use((error, req, res, next) => {
+app.use((error: CustomErrorType, req: Request, res: Response, next: NextFunction) => {
     const status = error.statusCode || 500;
     const message = error.message;
     const data = error.data;

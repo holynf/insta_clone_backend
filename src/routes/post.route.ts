@@ -1,9 +1,8 @@
-import controller from "../controllers/post";
 import express from "express";
-const router = express.Router();
-
+import controller from "../controllers/post";
 import { validateData } from "../middleware/validationMiddleware";
 import { createPostSchema } from "../interfaces/models/post";
+const router = express.Router();
 
 router.get("/list", controller.postsList);
 router.get("/sub_posts", controller.subPost);
@@ -18,4 +17,4 @@ router.put("/delete-comment", controller.deleteCommentPost);
 
 router.delete("/:postId", controller.deletePost);
 
-module.exports = router;
+export default router;

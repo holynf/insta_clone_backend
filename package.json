@@ -2,11 +2,15 @@
   "name": "instagram-clone",
   "version": "0.1.0",
   "description": "instagram clone",
-  "main": "app.js",
+  "main": "dist",
   "scripts": {
-    "start": "cross-env NODE_ENV=development nodemon app",
-    "prod": "cross-env NODE_ENV=production node app",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run tsc",
+    "tsc": "tsc -p tsconfig.json",
+    "dev": "tsc --watch & NODE_ENV=development nodemon dist",
+    "test": "tsc && ./node_modules/.bin/mocha dist/**/*.spec.js",
+    "lint": "tslint 'src/**/*.ts' --fix",
+    "clean":"rm -rf dist/ .logs/",
+    "start":"node dist"
   },
   "author": "abolfazl safaei",
   "license": "ISC",
@@ -28,7 +32,11 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/morgan": "^1.9.9",
     "cross-env": "^7.0.3",
     "nodemon": "^2.0.12",
     "prettier": "3.2.5",

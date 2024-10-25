@@ -1,9 +1,9 @@
 import mongoose, { model } from "mongoose";
-import { User as UserModel } from "../interfaces/models/user";
+import { UserModelType } from "../interfaces/models/user";
 
 const { ObjectId } = mongoose.Schema.Types;
 
-const userSchema = new mongoose.Schema<UserModel>({
+const userSchema = new mongoose.Schema<UserModelType>({
     name: {
         type: String,
         required: true,
@@ -30,5 +30,5 @@ const userSchema = new mongoose.Schema<UserModel>({
     bookmarks: [{ type: ObjectId, ref: "Post" }],
 });
 
-const User = model<UserModel>("User", userSchema);
+const User = model<UserModelType>("User", userSchema);
 export default User;

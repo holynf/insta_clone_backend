@@ -1,7 +1,10 @@
 import Post from "../models/post";
 import User from "../models/user";
+import { NextFunction, Request, Response } from "express";
+import { PostModelType } from "../interfaces/models/post";
+import { CustomErrorType } from "../interfaces/appInterface";
 
-exports.user = (req, res) => {
+export const user = (req: Request, res: Response) => {
     User.findOne({ _id: req.params.id })
         .select("-password")
         .then((user) => {
@@ -9,7 +12,7 @@ exports.user = (req, res) => {
                 .populate("posted_by", "_id name username")
                 .exec((err, result) => {
                     if (err) return res.status(422).json();
-                    const posts = [];
+                    const posts: PostModelType[] = [];
                     result.map((item) => {
                         posts.push({
                             _id: item._id,
@@ -29,16 +32,16 @@ exports.user = (req, res) => {
         });
 };
 
-exports.followUser = async (req, res, next) => {
+export const followUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.user || !req.user._id) {
-            const error = new Error("User ID is not provided.");
+            const error: CustomErrorType = new Error("User ID is not provided.");
             error.statusCode = 400;
             throw error;
         }
 
         if (req.user._id.toString() === req.body.followId) {
-            const error = new Error("You Can't Follow YourSelf!");
+            const error: CustomErrorType = new Error("You Can't Follow YourSelf!");
             error.statusCode = 422;
             throw error;
         }
@@ -49,7 +52,7 @@ exports.followUser = async (req, res, next) => {
         });
 
         if (existingFollower) {
-            const error = new Error("You already follow this user!");
+            const error: CustomErrorType = new Error("You already follow this user!");
             error.statusCode = 422;
             throw error;
         }
@@ -76,17 +79,17 @@ exports.followUser = async (req, res, next) => {
                     return res.status(422).json({ error: err });
                 });
         } else {
-            const error = new Error("User not found");
+            const error: CustomErrorType = new Error("User not found");
             error.statusCode = 404;
             throw error;
         }
-    } catch (err) {
+    } catch (err: any) {
         err.statusCode = err.statusCode || 500;
         next(err);
     }
 };
 
-exports.unfollowUser = (req, res) => {
+export const unfollowUser = (req: Request, res: Response) => {
     User.findByIdAndUpdate(
         req.body.unfollowId,
         {
@@ -117,7 +120,7 @@ exports.unfollowUser = (req, res) => {
     );
 };
 
-exports.userSearch = (req, res) => {
+export const userSearch = (req: Request, res: Response) => {
     let pattern = new RegExp("^" + req.body.pattern);
     User.find({ username: { $regex: pattern } })
         .select("_id email name username")
@@ -128,3 +131,11 @@ exports.userSearch = (req, res) => {
             console.log(err);
         });
 };
+
+const controller = {
+    userSearch,
+    unfollowUser,
+    followUser,
+    user,
+};
+export default controller;

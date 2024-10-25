@@ -1,10 +1,10 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const controller = require("../controllers/user.controller");
+import controller from "../controllers/user";
 
 router.get("/:id", controller.user);
 router.put("/follow", controller.followUser);
 router.put("/unfollow", controller.unfollowUser);
 router.post("/users-search", controller.userSearch);
 
-module.exports = router;
+export default router;

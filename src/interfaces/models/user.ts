@@ -25,4 +25,4 @@ export const userLoginSchema = z.object({
     password: z.string().min(8),
 });
 
-export type User = z.infer<typeof UserSchema>;
+export type UserModelType = z.infer<typeof UserSchema>;

@@ -2,6 +2,7 @@ import { validationResult } from "express-validator";
 import Post from "../models/post";
 import { CustomErrorType } from "../interfaces/appInterface";
 import { NextFunction, Request, Response } from "express";
+import { PostModelType } from "../interfaces/models/post";
 
 export const postsList = (req: Request, res: Response, next: NextFunction) => {
     Post.find()
@@ -9,14 +10,14 @@ export const postsList = (req: Request, res: Response, next: NextFunction) => {
         .populate("comments.posted_by", "_id name email")
         .sort("-created_at")
         .then((data) => {
-            let posts = [];
+            let posts: PostModelType[] = [];
             data.map((item) => {
                 posts.push({
                     _id: item._id,
                     title: item.title,
                     body: item.body,
                     posted_by: item.posted_by,
-                    photo: item.photo.toString(),
+                    photo: item.photo ? item.photo.toString() : undefined,
                     likes: item.likes,
                     comments: item.comments,
                 });
@@ -34,14 +35,14 @@ export const subPost = (req: Request, res: Response, next: NextFunction) => {
         .populate("comments.posted_by", "_id name")
         .sort("-created_at")
         .then((data) => {
-            let posts = [];
+            let posts: PostModelType[] = [];
             data.map((item) => {
                 posts.push({
                     _id: item._id,
                     title: item.title,
                     body: item.body,
                     posted_by: item.posted_by,
-                    photo: item.photo.toString(),
+                    photo: item.photo ? item.photo.toString() : undefined,
                     likes: item.likes,
                     comments: item.comments,
                 });
@@ -59,13 +60,13 @@ export const myPost = (req: Request, res: Response, next: NextFunction) => {
         .populate("comments.posted_by", "_id name")
         .sort("-created_at")
         .then((data) => {
-            let posts = [];
+            let posts: PostModelType[] = [];
             data.map((item) => {
                 posts.push({
                     _id: item._id,
                     title: item.title,
                     body: item.body,
-                    photo: item.photo.toString(),
+                    photo: item.photo ? item.photo.toString() : undefined,
                     likes: item.likes,
                     comments: item.comments,
                 });
@@ -189,9 +190,9 @@ export const unlikePost = async (req: Request, res: Response, next: NextFunction
             likes: updatedPost.likes,
             comments: updatedPost.comments,
         });
-    } catch (error) {
-        error.statusCode = error.statusCode || 500;
-        next(error);
+    } catch (err: any) {
+        err.statusCode = err.statusCode || 500;
+        next(err);
     }
 };
 
@@ -224,7 +225,7 @@ export const commentPost = async (req: Request, res: Response, next: NextFunctio
             likes: updatedPost.likes,
             comments: updatedPost.comments,
         });
-    } catch (err) {
+    } catch (err: any) {
         err.statusCode = err.statusCode || 500;
         next(err);
     }
@@ -263,12 +264,11 @@ export const deleteCommentPost = async (req: Request, res: Response, next: NextF
             title: updatedPost.title,
             body: updatedPost.body,
             posted_by: updatedPost.posted_by,
-            // @ts-ignore
-            photo: updatedPost.photo?.toString("base64"),
+            photo: updatedPost.photo?.toString(),
             likes: updatedPost.likes,
             comments: updatedPost.comments,
         });
-    } catch (err) {
+    } catch (err: any) {
         err.statusCode = err.statusCode || 500;
         next(err);
     }
@@ -283,7 +283,7 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
             err.statusCode = 404;
             throw err;
         }
-        if (deletedPost.posted_by._id.toString() === req.user._id.toString()) {
+        if (deletedPost.posted_by?._id.toString() === req.user._id!.toString()) {
             deletedPost
                 .remove()
                 .then((result) => {
@@ -296,7 +296,7 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
                     throw err;
                 });
         }
-    } catch (err) {
+    } catch (err: any) {
         err.statusCode = err.statusCode || 500;
         next(err);
     }

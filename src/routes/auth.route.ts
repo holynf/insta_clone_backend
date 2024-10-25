@@ -7,4 +7,4 @@ import { validateData } from "../middleware/validationMiddleware";
 router.post("/register", validateData(userRegistrationSchema), controller.register);
 router.post("/login", validateData(userLoginSchema), controller.login);
 
-module.exports = router;
+export default router;

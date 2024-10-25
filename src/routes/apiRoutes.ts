@@ -9,4 +9,4 @@ router.use("/auth", authRouter);
 router.use("/posts", isAuth, postsRouter);
 router.use("/user", isAuth, userRouter);
 
-module.exports = router;
+export default router;
