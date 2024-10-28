@@ -5,9 +5,10 @@ import compression from "compression";
 import helmet from "helmet";
 import bodyParser from "body-parser";
 import apiRoutes from "./routes/apiRoutes";
-
 import { connectDB } from "./config/db.config";
 import { CustomErrorType } from "./interfaces/appInterface";
+import multer, { FileFilterCallback } from "multer";
+import path from "path";
 
 /**
  * -------------- GENERAL SETUP ----------------
@@ -17,12 +18,35 @@ require("dotenv").config();
 
 connectDB();
 
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "images");
+    },
+    filename: (req, file, cb) => {
+        cb(null, new Date().toISOString() + "-" + file.originalname);
+    },
+});
+
+const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+    if (
+        file.mimetype === "image/png" ||
+        file.mimetype === "image/jpg" ||
+        file.mimetype === "image/jpeg"
+    ) {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+};
+
 const app = express();
 
 app.use(bodyParser.json());
 app.use(compression());
 app.use(helmet());
 app.use(morgan("dev"));
+app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");

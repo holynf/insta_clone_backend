@@ -1,8 +1,8 @@
 import { validationResult } from "express-validator";
 import Post from "../models/post";
-import { CustomErrorType } from "../interfaces/appInterface";
 import { NextFunction, Request, Response } from "express";
 import { PostModelType } from "../interfaces/models/post";
+import ErrorValidationResult from "../utils/ErrorValidationResult";
 
 export const postsList = (req: Request, res: Response, next: NextFunction) => {
     Post.find()
@@ -81,17 +81,25 @@ export const myPost = (req: Request, res: Response, next: NextFunction) => {
 export const createPost = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const error: CustomErrorType = new Error("Validation failed, entered data is incorrect.");
-        error.statusCode = 422;
-        throw error;
+        ErrorValidationResult({
+            code: 422,
+            errorBody: "Validation failed, entered data is incorrect.",
+        });
     }
-
+    if (!req.file) {
+        ErrorValidationResult({
+            code: 422,
+            errorBody: "No image provided.",
+        });
+    }
+    const photoUrl = req.file?.path;
     const { title, body } = req.body;
 
     const post = new Post({
         title: title,
         body: body,
         posted_by: req.user,
+        photo: photoUrl,
     });
 
     post.save()
@@ -112,9 +120,10 @@ export const createPost = (req: Request, res: Response, next: NextFunction) => {
 export const likePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.user || !req.user._id) {
-            const error: CustomErrorType = new Error("User ID is not provided.");
-            error.statusCode = 400;
-            return next(error);
+            ErrorValidationResult({
+                code: 400,
+                errorBody: "User ID is not provided.",
+            });
         }
 
         // Check if the user has already liked the post
@@ -124,12 +133,12 @@ export const likePost = async (req: Request, res: Response, next: NextFunction) 
         });
 
         if (existingLike) {
-            const error: CustomErrorType = new Error("You already liked this post!");
-            error.statusCode = 422;
-            throw error;
+            ErrorValidationResult({
+                code: 422,
+                errorBody: "You already liked this post!",
+            });
         }
 
-        // Add the user's like to the post
         const updatedPost = await Post.findByIdAndUpdate(
             req.body.postId,
             { $push: { likes: req.user._id } },
@@ -139,12 +148,12 @@ export const likePost = async (req: Request, res: Response, next: NextFunction) 
             .populate("comments.posted_by", "_id name email");
 
         if (!updatedPost) {
-            const error: CustomErrorType = new Error("Post not found!");
-            error.statusCode = 404;
-            throw error;
+            return ErrorValidationResult({
+                code: 404,
+                errorBody: "Post not found!",
+            });
         }
 
-        // Respond with the updated post data
         res.json({
             _id: updatedPost._id,
             title: updatedPost.title,
@@ -162,9 +171,10 @@ export const likePost = async (req: Request, res: Response, next: NextFunction) 
 export const unlikePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.user || !req.user._id) {
-            const error: CustomErrorType = new Error("User ID is not provided.");
-            error.statusCode = 400;
-            return next(error);
+            return ErrorValidationResult({
+                code: 400,
+                errorBody: "User ID is not provided.",
+            });
         }
 
         const updatedPost = await Post.findByIdAndUpdate(
@@ -176,9 +186,10 @@ export const unlikePost = async (req: Request, res: Response, next: NextFunction
             .populate("comments.posted_by", "_id name email");
 
         if (!updatedPost) {
-            const error: CustomErrorType = new Error("Post not found!");
-            error.statusCode = 404;
-            throw error;
+            return ErrorValidationResult({
+                code: 404,
+                errorBody: "Post not found!",
+            });
         }
 
         res.json({
@@ -211,9 +222,10 @@ export const commentPost = async (req: Request, res: Response, next: NextFunctio
             .populate("posted_by", "_id name email");
 
         if (!updatedPost) {
-            const error: CustomErrorType = new Error("Post not found!");
-            error.statusCode = 404;
-            throw error;
+            return ErrorValidationResult({
+                code: 404,
+                errorBody: "Post not found!",
+            });
         }
 
         res.json({
@@ -240,9 +252,10 @@ export const deleteCommentPost = async (req: Request, res: Response, next: NextF
             .populate("posted_by", "_id name email");
 
         if (!post) {
-            const error: CustomErrorType = new Error("Post not found!");
-            error.statusCode = 404;
-            throw error;
+            return ErrorValidationResult({
+                code: 404,
+                errorBody: "Post not found!",
+            });
         }
 
         const commentIndex = post?.comments.findIndex(
@@ -250,9 +263,10 @@ export const deleteCommentPost = async (req: Request, res: Response, next: NextF
         );
 
         if (commentIndex === -1) {
-            const error: CustomErrorType = new Error("Comment not found!");
-            error.statusCode = 404;
-            throw error;
+            return ErrorValidationResult({
+                code: 404,
+                errorBody: "Comment not found!",
+            });
         }
 
         post.comments.splice(commentIndex, 1);
@@ -279,9 +293,10 @@ export const deletePost = async (req: Request, res: Response, next: NextFunction
     try {
         const deletedPost = await Post.findOne({ _id: postId }).populate("posted_by", "_id");
         if (!deletedPost) {
-            const err: CustomErrorType = new Error("post NOT found!");
-            err.statusCode = 404;
-            throw err;
+            return ErrorValidationResult({
+                code: 404,
+                errorBody: "Post not found!",
+            });
         }
         if (deletedPost.posted_by?._id.toString() === req.user._id!.toString()) {
             deletedPost

@@ -6,6 +6,8 @@ import { UserModelType } from "../interfaces/models/user";
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import ErrorValidationResult from "../utils/ErrorValidationResult";
+
 export const register = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -46,29 +48,30 @@ export const login = (req: Request, res: Response, next: NextFunction) => {
     const email = req.body.email;
     const password = req.body.password;
     if (!email || !password) {
-        const error: CustomErrorType = new Error("Please provide Email or Password!");
-        error.statusCode = 404;
-        throw error;
+        return ErrorValidationResult({
+            code: 404,
+            errorBody: "Please provide Email or Password!",
+        });
     }
 
     let loadedUser: UserModelType;
     User.findOne({ email: email })
         .then((user) => {
             if (!user) {
-                const error: CustomErrorType = new Error(
-                    "A user with this email could not be found.",
-                );
-                error.statusCode = 401;
-                throw error;
+                return ErrorValidationResult({
+                    code: 401,
+                    errorBody: "A user with this email could not be found.",
+                });
             }
             loadedUser = user;
             return bcrypt.compare(password, user.password);
         })
         .then((isEqual) => {
             if (!isEqual) {
-                const error: CustomErrorType = new Error("Wrong password!");
-                error.statusCode = 401;
-                throw error;
+                return ErrorValidationResult({
+                    code: 401,
+                    errorBody: "Wrong password!",
+                });
             }
             const token: string = jwt.sign(
                 {

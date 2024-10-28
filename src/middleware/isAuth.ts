@@ -3,6 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { z } from "zod";
 import User from "../models/user";
 import { CustomErrorType } from "../interfaces/appInterface";
+import ErrorValidationResult from "../utils/ErrorValidationResult";
 
 const authSchema = z.object({
     authorization: z.string().min(1, "Authorization header is required"),
@@ -16,9 +17,10 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
 
         jwt.verify(token, process.env.JWT_SECRET!, async (err, payload) => {
             if (err || !payload) {
-                const error: CustomErrorType = new Error("Your session has expired.");
-                (error as any).statusCode = 401;
-                return next(error);
+                return ErrorValidationResult({
+                    code: 401,
+                    errorBody: "Your session has expired.",
+                });
             }
 
             const { userId } = payload as JwtPayload;

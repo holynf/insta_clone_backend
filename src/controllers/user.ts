@@ -3,6 +3,7 @@ import User from "../models/user";
 import { NextFunction, Request, Response } from "express";
 import { PostModelType } from "../interfaces/models/post";
 import { CustomErrorType } from "../interfaces/appInterface";
+import ErrorValidationResult from "../utils/ErrorValidationResult";
 
 export const user = (req: Request, res: Response) => {
     User.findOne({ _id: req.params.id })
@@ -35,15 +36,17 @@ export const user = (req: Request, res: Response) => {
 export const followUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.user || !req.user._id) {
-            const error: CustomErrorType = new Error("User ID is not provided.");
-            error.statusCode = 400;
-            throw error;
+            return ErrorValidationResult({
+                code: 400,
+                errorBody: "User ID is not provided.",
+            });
         }
 
         if (req.user._id.toString() === req.body.followId) {
-            const error: CustomErrorType = new Error("You Can't Follow YourSelf!");
-            error.statusCode = 422;
-            throw error;
+            return ErrorValidationResult({
+                code: 422,
+                errorBody: "You Can't Follow YourSelf!",
+            });
         }
 
         const existingFollower = await User.findOne({
@@ -52,9 +55,10 @@ export const followUser = async (req: Request, res: Response, next: NextFunction
         });
 
         if (existingFollower) {
-            const error: CustomErrorType = new Error("You already follow this user!");
-            error.statusCode = 422;
-            throw error;
+            return ErrorValidationResult({
+                code: 422,
+                errorBody: "You already follow this user!",
+            });
         }
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -79,9 +83,10 @@ export const followUser = async (req: Request, res: Response, next: NextFunction
                     return res.status(422).json({ error: err });
                 });
         } else {
-            const error: CustomErrorType = new Error("User not found");
-            error.statusCode = 404;
-            throw error;
+            return ErrorValidationResult({
+                code: 404,
+                errorBody: "User not found!",
+            });
         }
     } catch (err: any) {
         err.statusCode = err.statusCode || 500;
