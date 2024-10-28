@@ -2,7 +2,6 @@ import Post from "../models/post";
 import User from "../models/user";
 import { NextFunction, Request, Response } from "express";
 import { PostModelType } from "../interfaces/models/post";
-import { CustomErrorType } from "../interfaces/appInterface";
 import ErrorValidationResult from "../utils/ErrorValidationResult";
 
 export const user = (req: Request, res: Response) => {
@@ -31,6 +30,23 @@ export const user = (req: Request, res: Response) => {
         .catch((err) => {
             return res.status(404).json({ Error: "User not found" });
         });
+};
+
+export const updatePicture = (req: Request, res: Response) => {
+    User.findByIdAndUpdate(
+        req.user._id,
+        { $set: { photo: req.file?.path } },
+        { new: true },
+        (err, result) => {
+            if (err) {
+                return ErrorValidationResult({
+                    code: 422,
+                    errorBody: "You Can't Update Your Picture!",
+                });
+            }
+            res.json({ user: { _id: req.user._id, name: req.user.name } });
+        },
+    );
 };
 
 export const followUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -142,5 +158,6 @@ const controller = {
     unfollowUser,
     followUser,
     user,
+    updatePicture,
 };
 export default controller;

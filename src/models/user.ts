@@ -24,6 +24,8 @@ const userSchema = new mongoose.Schema<UserModelType>({
     },
     photo: {
         type: String,
+        default: "no photo",
+        required: true,
     },
     followers: [{ type: ObjectId, ref: "User" }],
     following: [{ type: ObjectId, ref: "User" }],
