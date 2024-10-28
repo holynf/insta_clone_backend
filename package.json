@@ -10,7 +10,7 @@
     "test": "tsc && ./node_modules/.bin/mocha dist/**/*.spec.js",
     "lint": "tslint 'src/**/*.ts' --fix",
     "clean": "rm -rf dist/ .logs/",
-    "start": "node dist"
+    "start": "nodemon app"
   },
   "author": "abolfazl safaei",
   "license": "ISC",

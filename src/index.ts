@@ -23,7 +23,7 @@ const fileStorage = multer.diskStorage({
         cb(null, "images");
     },
     filename: (req, file, cb) => {
-        cb(null, new Date().toISOString() + "-" + file.originalname);
+        cb(null, new Date().toISOString().replace(/:/g, "-") + "_" + file.originalname);
     },
 });
 
@@ -45,8 +45,8 @@ app.use(bodyParser.json());
 app.use(compression());
 app.use(helmet());
 app.use(morgan("dev"));
-app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
-app.use("/images", express.static(path.join(__dirname, "images")));
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single("image"));
+app.use("/images", express.static(path.join(__dirname, "..", "images")));
 
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
