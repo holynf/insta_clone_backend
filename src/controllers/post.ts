@@ -81,13 +81,13 @@ export const myPost = (req: Request, res: Response, next: NextFunction) => {
 export const createPost = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        ErrorValidationResult({
+        return ErrorValidationResult({
             code: 422,
             errorBody: "Validation failed, entered data is incorrect.",
         });
     }
     if (!req.file) {
-        ErrorValidationResult({
+        return ErrorValidationResult({
             code: 422,
             errorBody: "No image provided.",
         });
@@ -120,7 +120,7 @@ export const createPost = (req: Request, res: Response, next: NextFunction) => {
 export const likePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.user || !req.user._id) {
-            ErrorValidationResult({
+            return ErrorValidationResult({
                 code: 400,
                 errorBody: "User ID is not provided.",
             });
@@ -133,7 +133,7 @@ export const likePost = async (req: Request, res: Response, next: NextFunction) 
         });
 
         if (existingLike) {
-            ErrorValidationResult({
+            return ErrorValidationResult({
                 code: 422,
                 errorBody: "You already liked this post!",
             });

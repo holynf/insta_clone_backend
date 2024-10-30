@@ -33,6 +33,13 @@ export const user = (req: Request, res: Response) => {
 };
 
 export const updatePicture = (req: Request, res: Response) => {
+    if (!req.file) {
+        return ErrorValidationResult({
+            code: 422,
+            errorBody: "No image provided.",
+        });
+    }
+
     User.findByIdAndUpdate(
         req.user._id,
         { $set: { photo: req.file?.path } },
