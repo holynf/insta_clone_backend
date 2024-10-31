@@ -1,10 +1,12 @@
-import controller from "../controllers/auth";
 import express from "express";
-import { userRegistrationSchema, userLoginSchema } from "../interfaces/models/user";
-const router = express.Router();
+import { userLoginSchema, userRegistrationSchema } from "../interfaces/models/user";
 import { validateData } from "../middleware/validationMiddleware";
+import AuthLogin from "../controllers/auth/Login";
+import AuthRegister from "../controllers/auth/Register";
 
-router.post("/register", validateData(userRegistrationSchema), controller.register);
-router.post("/login", validateData(userLoginSchema), controller.login);
+const router = express.Router();
+
+router.post("/register", validateData(userRegistrationSchema), AuthLogin);
+router.post("/login", validateData(userLoginSchema), AuthRegister);
 
 export default router;

@@ -1,11 +1,16 @@
 import express from "express";
-const router = express.Router();
-import controller from "../controllers/user";
+import UserInformation from "../controllers/users/UserInformation";
+import FollowUser from "../controllers/users/FollowUser";
+import UnFollowUser from "../controllers/users/UnFollowUser";
+import UserSearch from "../controllers/users/UserSearch";
+import UpdateUserProfilePicture from "../controllers/users/UpdateUserProfilePicture";
 
-router.get("/:id", controller.user);
-router.put("/follow", controller.followUser);
-router.put("/unfollow", controller.unfollowUser);
-router.post("/users-search", controller.userSearch);
-router.post("/update-picture", controller.updatePicture);
+const router = express.Router();
+
+router.get("/:id", UserInformation);
+router.put("/follow", FollowUser);
+router.put("/unfollow", UnFollowUser);
+router.post("/users-search", UserSearch);
+router.post("/update-picture", UpdateUserProfilePicture);
 
 export default router;
