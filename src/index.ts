@@ -9,6 +9,7 @@ import { connectDB } from "./config/db.config";
 import { CustomErrorType } from "./interfaces/appInterface";
 import multer, { FileFilterCallback } from "multer";
 import path from "path";
+import logger from "./config/log";
 
 /**
  * -------------- GENERAL SETUP ----------------
@@ -68,12 +69,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/api", apiRoutes);
 
 /**
- * -------------- LOGS ----------------
- */
-
-require("./config/log")();
-
-/**
  * -------------- ERRORS ----------------
  */
 
@@ -81,6 +76,7 @@ app.use((error: CustomErrorType, req: Request, res: Response, next: NextFunction
     const status = error.statusCode || 500;
     const message = error.message;
     const data = error.data;
+    logger.error(`Error: ${error.statusCode}-${error.message}`, { stack: error.stack });
     res.status(status).json({ message: message, data: data });
 });
 
