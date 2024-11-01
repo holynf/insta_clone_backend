@@ -68,6 +68,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/api", apiRoutes);
 
 /**
+ * -------------- LOGS ----------------
+ */
+
+require("./config/log")();
+
+/**
  * -------------- ERRORS ----------------
  */
 
