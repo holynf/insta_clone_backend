@@ -6,7 +6,7 @@ import AuthRegister from "../controllers/auth/Register";
 
 const router = express.Router();
 
-router.post("/register", validateData(userRegistrationSchema), AuthLogin);
-router.post("/login", validateData(userLoginSchema), AuthRegister);
+router.post("/register", validateData(userRegistrationSchema), AuthRegister);
+router.post("/login", validateData(userLoginSchema), AuthLogin);
 
 export default router;
