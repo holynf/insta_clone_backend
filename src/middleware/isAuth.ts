@@ -17,7 +17,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
 
         jwt.verify(token, process.env.JWT_SECRET!, async (err, payload) => {
             if (err || !payload) {
-                return ErrorValidationResult({
+                return res.status(401).json({
                     code: 401,
                     errorBody: "Your session has expired.",
                 });
